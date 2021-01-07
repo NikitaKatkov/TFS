@@ -8,7 +8,7 @@ object InputValidator {
             throw ValidationException("$value is less than minimum value $minValue")
         }
         if (maxValue != null && value > maxValue) {
-            throw ValidationException("$value is less than maximum value ${maxValue}")
+            throw ValidationException("$value is more than maximum value ${maxValue}")
         }
     }
 }

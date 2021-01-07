@@ -27,13 +27,11 @@ class PalindromeCounter(private val inputReader: InputDataReader) {
         val hasMiddleDigit = numberLength % 2 == 1 && numberLength > 1
         val middleDigitMultiplier =
             if (hasMiddleDigit) getDigitByRank(substitutedInputNumber, groundedHalfLength + 1) + 1 else 1
-        val middleDigitShift =
-            if (hasMiddleDigit) 1 else 0 //fixme do not need it?
-
 
         fun countPalindromesOfLengthLessThanGiven(restOfGivenNumber: Int): Int {
-            if (numberLength == 1 || numberLength - restOfGivenNumber.length() + 1 == groundedHalfLength) //normalize zero-based index to 1-based length system
-                return getHighestRankDigit(restOfGivenNumber)
+            if (numberLength == 1 || numberLength - restOfGivenNumber.length() + 1 == groundedHalfLength) { //normalize zero-based index to 1-based length system
+                return middleDigitMultiplier * getHighestRankDigit(restOfGivenNumber)
+            }
 
             val highestRankDigit = getHighestRankDigit(restOfGivenNumber)
 
@@ -44,18 +42,16 @@ class PalindromeCounter(private val inputReader: InputDataReader) {
 
             val numberWithoutHighestRankDigit =
                 removeMostSignificantDigit(restOfGivenNumber, restOfGivenNumber.length())
-            return (highestRankDigit - 1) * 10 + 1 * (countPalindromesOfLengthLessThanGiven(
-                numberWithoutHighestRankDigit
-            ))
+            val countOfPalindromesOfSameLengthAndLessThanGiven =
+                countPalindromesOfLengthLessThanGiven(numberWithoutHighestRankDigit)
+
+            return if (hasMiddleDigit)
+                (highestRankDigit - 1) * 10 + countOfPalindromesOfSameLengthAndLessThanGiven
+            else
+                countOfPalindromesOfSameLengthAndLessThanGiven
         }
 
-        val countOfPalindromesOfSameLengthAndLessThanGiven =
-            countPalindromesOfLengthLessThanGiven(substitutedInputNumber)
-        result += (getHighestRankDigit(substitutedInputNumber) - 1) * 10 +  middleDigitMultiplier * countOfPalindromesOfSameLengthAndLessThanGiven//fixme   умножить весь count на множитель составной??
-        // now need to count palindromes of the same length as given one -this is a part with recursion
-//        for (index in 1..groundedHalfLength) {
-//            result +=
-//        }
+        result += countPalindromesOfLengthLessThanGiven(substitutedInputNumber)
 
         return result
     }

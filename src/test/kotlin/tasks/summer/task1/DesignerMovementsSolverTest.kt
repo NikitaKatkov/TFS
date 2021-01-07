@@ -1,4 +1,4 @@
-package tasks.summer.designers
+package tasks.summer.task1
 
 import exceptions.ParsingException
 import exceptions.ValidationException

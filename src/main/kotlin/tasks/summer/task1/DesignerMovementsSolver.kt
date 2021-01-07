@@ -1,11 +1,11 @@
-package tasks.summer.designers
+package tasks.summer.task1
 
 import input.InputDataReader
 import input.InputParser
 import input.InputValidator
 import kotlin.math.min
 
-class DesignerMovementsSolver(private val inputReader: InputDataReader) {
+internal class DesignerMovementsSolver(private val inputReader: InputDataReader) {
     // Easy to modify code so that it would work with unlimited sequence of designer movements
     private fun prepareInputData(): Sequence<Int> {
         val movementsCount = inputReader.readOneLine()

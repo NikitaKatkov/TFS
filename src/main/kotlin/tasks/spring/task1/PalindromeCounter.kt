@@ -11,7 +11,53 @@ class PalindromeCounter(private val inputReader: InputDataReader) {
         .let { InputParser.parseInteger(it) }
         .also { InputValidator.validateLimits(it, 1, 100_000) }
 
+
+    //todo use long instead of int?
     fun solve2(): Int {
+        // Now middle digit has the highest possible value -> algorithm can be launched and no palindromes will be lost,
+        // since the substituted value is the largest palindrome which is less or equal to the given number
+        val substitutedInput = findFirstPalindromeLessThan(prepareInputData()) ?: return 0
+
+        val numberLength = substitutedInput.length()
+
+        // extract to separate fun
+        var palindromesOfShorterLength = 0
+        for (shorterLength in 1 until numberLength) {
+            palindromesOfShorterLength += countPalindromesOfLength(shorterLength)
+        }
+
+        //constants for using in recursive fun
+        val groundedHalfLength = numberLength / 2
+        val hasMiddleDigit = numberLength % 2 == 1// && numberLength > 1
+        val substitutedMiddleDigit = getDigitByRank(substitutedInput, groundedHalfLength + 1)
+
+        fun howMuchPalindromes(inputHalfWithoutMiddleDigit: Int, indexFromLeft: Int): Int {
+            if (indexFromLeft >= groundedHalfLength) {
+                return substitutedMiddleDigit + 1 // considering 0 and natural numbers from 1 to middle digit value
+            }
+
+            val highestRankDigit = getHighestRankDigit(inputHalfWithoutMiddleDigit)
+            val middleDigitMultiplier =
+                if (hasMiddleDigit) 10 else 1
+
+            val howMuchWithLesserHighestRankDigit =
+                (highestRankDigit - 1) * 10.0.pow(groundedHalfLength - indexFromLeft) * middleDigitMultiplier
+            return howMuchWithLesserHighestRankDigit.toInt() * howMuchPalindromes(
+                removeMostSignificantDigit(inputHalfWithoutMiddleDigit, inputHalfWithoutMiddleDigit.length()),
+                indexFromLeft + 1
+            )
+        }
+
+        // For some reason TFS does not consider '0' a palindrome (probably the word 'natural palindromes'
+        // is missing in the task text), so we subtract 1 at the end of computation
+        return palindromesOfShorterLength + howMuchPalindromes(getHalfOfInputIgnoringMiddleDigit(substitutedInput, groundedHalfLength), 1) - 1
+    }
+
+    private fun getHalfOfInputIgnoringMiddleDigit(input: Int, groundedHalfLength: Int): Int =
+        input / 10.0.pow(input.length() - groundedHalfLength).toInt()
+
+
+    fun solve3(): Int {
         val substitutedInputNumber = findFirstPalindromeLessThan(prepareInputData())!!
         val numberLength = substitutedInputNumber.length()
 
@@ -144,7 +190,7 @@ class PalindromeCounter(private val inputReader: InputDataReader) {
     internal fun getDigitByRank(number: Int, rank: Int): Int =
         number / (10.0.pow(rank - 1).toInt()) % 10
 
-    internal fun removeMostSignificantDigit(number: Int, currentLength: Int): Int {
+    internal fun removeMostSignificantDigit(number: Int, currentLength: Int): Int { //todo remove second param and compute it inside fun
         return number - 10.0.pow(currentLength - 1).toInt() * getDigitByRank(number, currentLength)
     }
 }

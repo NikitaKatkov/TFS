@@ -44,7 +44,7 @@ internal class PalindromeCounterTest {
         // first generate all possible palindromes via brute force
         var bruteCounter = 0
         val bruteForceTiming = measureNanoTime {
-//            for (number in 1..1000) {
+//            for (number in 1..100) {
             for (number in 10000000..99999999) {
                 if (counter.isPalindrome(number)) {
                     bruteCounter += 1
@@ -74,7 +74,7 @@ internal class PalindromeCounterTest {
 
     @Test
     fun synthetic() {
-        val input = "221"
+        val input = "11"
 
         val counter = PalindromeCounter(TextInputReader(input))
         val substitution = counter.findFirstPalindromeLessThan(input.toInt())!!

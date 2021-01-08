@@ -74,7 +74,7 @@ internal class PalindromeCounterTest {
 
     @Test
     fun synthetic() {
-        val input = "11"
+        val input = "100000"
 
         val counter = PalindromeCounter(TextInputReader(input))
         val substitution = counter.findFirstPalindromeLessThan(input.toInt())!!
@@ -102,5 +102,7 @@ internal class PalindromeCounterTest {
         assertEquals(9, testWithStatefulReader("9"))
         assertEquals(10, testWithStatefulReader("19"))
         assertEquals(17, testWithStatefulReader("88"))
+        assertEquals(19, testWithStatefulReader("102"))
+        assertEquals(20, testWithStatefulReader("111"))
     }
 }

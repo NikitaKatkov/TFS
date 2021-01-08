@@ -10,7 +10,7 @@ import kotlin.math.pow
 class PalindromeCounter(private val inputReader: InputDataReader) {
     private fun prepareInputData(): Int = inputReader.readOneLine()
         .let { InputParser.parseInteger(it) }
-        .also { InputValidator.validateLimits(it, 1, 100_000) }
+//        .also { InputValidator.validateLimits(it, 1, 100_000) }
 
 
     //todo use long instead of int?
@@ -38,9 +38,10 @@ class PalindromeCounter(private val inputReader: InputDataReader) {
                     substitutedMiddleDigit + 1//fixme? merge with third condition?
                 else if (previousHdr != null)
                     if (indexFromLeft - 1 > 1) // if previous index does not point to the first digit, it is possible to use zero as well in current position, so we add one extra variant
-                        previousHdr + 1
+//                        previousHdr + 1
+                        1 + 1
                     else
-                        previousHdr//fixme NOWWNOWNONWO!!!! mb previous hrd and not 1??)
+                        1//fixme NOWWNOWNONWO!!!! mb previous hrd and not 1??)
                 else
                     throw ComputationException("number has no middle digit and no prev hrd value is passed - should not reach this code")
 
@@ -49,7 +50,7 @@ class PalindromeCounter(private val inputReader: InputDataReader) {
                 return substitutedMiddleDigit
 
             // considering 0 and natural numbers from 1 to middle digit value
-            if (hasMiddleDigit && indexFromLeft == groundedHalfLength + 1) {// middle digit index + fixme mb inputHalf == null??
+            if (hasMiddleDigit && indexFromLeft == groundedHalfLength + 1) {// middle digit index + fixme mb inputHalf == null?? todo remove - it is covered by first if else block
                 return substitutedMiddleDigit + 1
             }
 
@@ -59,8 +60,14 @@ class PalindromeCounter(private val inputReader: InputDataReader) {
                 if (hasMiddleDigit) 10 else 1
 
             val howMuchWithLesserHighestRankDigit =
-                if (highestRankDigit > 0)
-                    (highestRankDigit - 1) * 10.0.pow(groundedHalfLength - indexFromLeft) * middleDigitMultiplier
+                if (highestRankDigit > 0) {
+                    val variantsCountForCurrentIndex =
+                        if (indexFromLeft == 1)
+                                highestRankDigit - 1
+                        else highestRankDigit
+
+                    variantsCountForCurrentIndex * 10.0.pow(groundedHalfLength - indexFromLeft) * middleDigitMultiplier
+                }
                 else
                     0
 

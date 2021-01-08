@@ -6,15 +6,17 @@ import input.InputValidator
 import tasks.TaskBase
 import kotlin.math.pow
 
-abstract class PalindromeCounterBase(inputReader: InputDataReader, enableValidation: Boolean = false): TaskBase<Int, Int>(inputReader, enableValidation) {
-    override fun prepareInput(): Int = inputReader.readOneLine()
-        .let { InputParser.parseInteger(it) }
+abstract class PalindromeCounterBase(inputReader: InputDataReader, enableValidation: Boolean = false) :
+    TaskBase<Long, Long>(inputReader, enableValidation) {
+
+    override fun prepareInput(): Long = inputReader.readOneLine()
+        .let { InputParser.parseLong(it) }
         .also { if (enableValidation) InputValidator.validateLimits(it, 1, 100_000) }
 
-    internal fun findFirstPalindromeLessThan(value: Int): Int? =
+    internal fun findFirstPalindromeLessThan(value: Long): Long? =
         generateSequence(value) { it - 1 }.firstOrNull { isPalindrome(it) }
 
-    internal fun isPalindrome(number: Int): Boolean {
+    internal fun isPalindrome(number: Long): Boolean {
         val inputLength = number.toString().length
         val groundedHalfLength = inputLength / 2
 
@@ -24,6 +26,10 @@ abstract class PalindromeCounterBase(inputReader: InputDataReader, enableValidat
         return true
     }
 
-    internal fun getDigitByRank(number: Int, rank: Int): Int =
-        number / (10.0.pow(rank - 1).toInt()) % 10
+    internal fun getDigitByRank(number: Long, rank: Int): Int {
+        val digit = number / (10.0.pow(rank - 1).toLong()) % 10
+        val integerDigit = digit.toInt()
+        assert(integerDigit.toLong() == digit) { "Loss of precision detected" }
+        return integerDigit
+    }
 }

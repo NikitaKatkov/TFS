@@ -15,6 +15,17 @@ object InputParser {
         return parsedValue
     }
 
+    fun parseLong(line: String, setter: (Long) -> Unit = {}): Long {
+        val parsedValue =
+            try {
+                line.trim().toLong()
+            } catch (exception: NumberFormatException) {
+                throw ParsingException("Unable to parse integer from given string: $line", exception)
+            }
+        setter(parsedValue)
+        return parsedValue
+    }
+
     fun parseDouble(line: String, setter: (Double) -> Unit = {}): Double {
         val parsedValue =
             try {

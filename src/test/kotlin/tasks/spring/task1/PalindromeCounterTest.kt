@@ -9,10 +9,10 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 internal class PalindromeCounterTest {
-    private fun testSmartWithStatefulReader(testData: String): Int =
+    private fun testSmartWithStatefulReader(testData: String): Long =
         PalindromeCounter(TextInputReader(testData)).solve()
 
-    private fun testDumbWithStatefulReader(testData: String): Int =
+    private fun testDumbWithStatefulReader(testData: String): Long =
         BruteForcePalindromeCounter(TextInputReader(testData)).solve()
 
     @Test
@@ -44,11 +44,11 @@ internal class PalindromeCounterTest {
 
     @Test
     fun `test count palindromes with fixed length`() {
-        val lowerBound = 10_000_000
+        val lowerBound = 10_000_000L
 
         val counter = PalindromeCounter(TextInputReader(""))
         // first generate all possible palindromes via brute force
-        var bruteCounter = 0
+        var bruteCounter = 0L
         val bruteForceTiming = measureNanoTime {
             for (number in lowerBound..10 * lowerBound) {
                 if (counter.isPalindrome(number)) {
@@ -78,29 +78,6 @@ internal class PalindromeCounterTest {
     }
 
     @Test
-    fun synthetic() {
-        val input = "401222"
-//        val input = "100000"
-
-        val counter = PalindromeCounter(TextInputReader(input))
-        val substitution = counter.findFirstPalindromeLessThan(input.toInt())!!
-        println("Substituted to: $substitution")
-
-        var bruteCounter = 0
-        for (number in 1..substitution) {
-            if (counter.isPalindrome(number)) {
-                bruteCounter += 1
-            }
-        }
-        println("Count via brute force = $bruteCounter")
-
-        val fastSolution = counter.solve()
-        println("Count via fast check = $fastSolution")
-
-        assertEquals(bruteCounter, fastSolution)
-    }
-
-    @Test
     fun `test count all palindromes`() {
         assertEquals(1, testSmartWithStatefulReader("1"))
         assertEquals(5, testSmartWithStatefulReader("5"))
@@ -114,6 +91,7 @@ internal class PalindromeCounterTest {
         assertEquals(1098, testSmartWithStatefulReader("100000"))
         assertEquals(1099, testSmartWithStatefulReader("100001"))
         assertEquals(1999, testSmartWithStatefulReader("1000001"))
+        assertEquals(142947, testSmartWithStatefulReader("${Int.MAX_VALUE.toLong() * 2}"))
     }
 
     @Test
@@ -130,6 +108,8 @@ internal class PalindromeCounterTest {
         assertEquals(1098, testDumbWithStatefulReader("100000"))
         assertEquals(1099, testDumbWithStatefulReader("100001"))
         assertEquals(1999, testDumbWithStatefulReader("1000001"))
+        // ha-ha, it will take you some time (5.14 minutes on macbook with i9 against 91[!] ms with smart algorithm) to get the answer ;)
+        // assertEquals(142947, testDumbWithStatefulReader("${Int.MAX_VALUE.toLong() * 2}"))
     }
 
     @Test
@@ -138,17 +118,17 @@ internal class PalindromeCounterTest {
         val randomNumber = "${random.nextInt(1, 1_000_000)}"
         println("Input number: $randomNumber")
 
-        var smartComputationResult: Int
+        var smartComputationResult: Long
         val smartComputationTime = measureNanoTime {
             smartComputationResult = testSmartWithStatefulReader(randomNumber)
         }
-        println("Smart result: $smartComputationResult computed in $smartComputationTime ns")
+        println("Smart result: $smartComputationResult, computed in $smartComputationTime ns")
 
-        var dumbComputationResult: Int
+        var dumbComputationResult: Long
         val dumbComputationTime = measureNanoTime {
             dumbComputationResult = testDumbWithStatefulReader(randomNumber)
         }
-        println("Dumb result: $dumbComputationResult computed in $dumbComputationTime ns")
+        println("Dumb result: $dumbComputationResult, computed in $dumbComputationTime ns")
 
         assertEquals(
             dumbComputationResult,

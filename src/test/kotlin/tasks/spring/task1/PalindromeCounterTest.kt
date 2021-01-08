@@ -9,7 +9,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 internal class PalindromeCounterTest {
-    private fun testWithStatefulReader(testData: String): Int = PalindromeCounter(TextInputReader(testData)).solve2()
+    private fun testWithStatefulReader(testData: String): Int = PalindromeCounter(TextInputReader(testData)).solve()
 
     @Test
     fun `test with provided data`() {
@@ -75,7 +75,6 @@ internal class PalindromeCounterTest {
 
     @Test
     fun synthetic() {
-//        val input = "10000"
         val input = "100000001"
 
         val counter = PalindromeCounter(TextInputReader(input))
@@ -86,12 +85,11 @@ internal class PalindromeCounterTest {
         for (number in 1..substitution) {
             if (counter.isPalindrome(number)) {
                 bruteCounter += 1
-//                println(number)
             }
         }
-        println("Count via brute force = $bruteCounter") //198 from smaller length + 900 from length 5 on max input of 100_000
+        println("Count via brute force = $bruteCounter")
 
-        val fastSolution = counter.solve2()
+        val fastSolution = counter.solve()
         println("Count via fast check = $fastSolution")
 
         assertEquals(bruteCounter, fastSolution)

@@ -2,6 +2,7 @@ package tasks.spring.task1
 
 import input.TextInputReader
 import org.junit.jupiter.api.Test
+import kotlin.math.pow
 import kotlin.random.Random
 import kotlin.system.measureNanoTime
 import kotlin.test.assertEquals
@@ -9,15 +10,18 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 internal class PalindromeCounterTest {
-    private fun testSmartWithStatefulReader(testData: String): Long =
+    private fun testSmartWithStatefulReaderAndEnabledCache(testData: String): Long =
         PalindromeCounter(TextInputReader(testData)).solve()
+
+    private fun testSmartWithStatefulReaderAndDisabledCache(testData: String): Long =
+        PalindromeCounter(inputReader = TextInputReader(testData), shouldUseCache = false).solve()
 
     private fun testDumbWithStatefulReader(testData: String): Long =
         BruteForcePalindromeCounter(TextInputReader(testData)).solve()
 
     @Test
     fun `test with provided data`() {
-        assertEquals(17, testSmartWithStatefulReader("88"))
+        assertEquals(17, testSmartWithStatefulReaderAndEnabledCache("88"))
     }
 
     @Test
@@ -79,19 +83,19 @@ internal class PalindromeCounterTest {
 
     @Test
     fun `test count all palindromes`() {
-        assertEquals(1, testSmartWithStatefulReader("1"))
-        assertEquals(5, testSmartWithStatefulReader("5"))
-        assertEquals(9, testSmartWithStatefulReader("9"))
-        assertEquals(10, testSmartWithStatefulReader("19"))
-        assertEquals(17, testSmartWithStatefulReader("88"))
-        assertEquals(19, testSmartWithStatefulReader("102"))
-        assertEquals(20, testSmartWithStatefulReader("111"))
-        assertEquals(109, testSmartWithStatefulReader("1001"))
-        assertEquals(1400, testSmartWithStatefulReader("401222"))
-        assertEquals(1098, testSmartWithStatefulReader("100000"))
-        assertEquals(1099, testSmartWithStatefulReader("100001"))
-        assertEquals(1999, testSmartWithStatefulReader("1000001"))
-        assertEquals(142947, testSmartWithStatefulReader("${Int.MAX_VALUE.toLong() * 2}"))
+        assertEquals(1, testSmartWithStatefulReaderAndEnabledCache("1"))
+        assertEquals(5, testSmartWithStatefulReaderAndEnabledCache("5"))
+        assertEquals(9, testSmartWithStatefulReaderAndEnabledCache("9"))
+        assertEquals(10, testSmartWithStatefulReaderAndEnabledCache("19"))
+        assertEquals(17, testSmartWithStatefulReaderAndEnabledCache("88"))
+        assertEquals(19, testSmartWithStatefulReaderAndEnabledCache("102"))
+        assertEquals(20, testSmartWithStatefulReaderAndEnabledCache("111"))
+        assertEquals(109, testSmartWithStatefulReaderAndEnabledCache("1001"))
+        assertEquals(1400, testSmartWithStatefulReaderAndEnabledCache("401222"))
+        assertEquals(1098, testSmartWithStatefulReaderAndEnabledCache("100000"))
+        assertEquals(1099, testSmartWithStatefulReaderAndEnabledCache("100001"))
+        assertEquals(1999, testSmartWithStatefulReaderAndEnabledCache("1000001"))
+        assertEquals(142947, testSmartWithStatefulReaderAndEnabledCache("${Int.MAX_VALUE.toLong() * 2}"))
     }
 
     @Test
@@ -114,35 +118,51 @@ internal class PalindromeCounterTest {
 
     @Test
     fun `test dumb and smart counters equivalent results`() {
+        val lowerNumberBound = 100_000_000L
+
         val random = Random(System.currentTimeMillis())
-        val randomNumber = "${random.nextInt(1, 1_000_000)}"
+        val randomNumber = "${random.nextLong(lowerNumberBound, 2 * lowerNumberBound)}"
         println("Input number: $randomNumber")
 
-        var smartComputationResult: Long
-        val smartComputationTime = measureNanoTime {
-            smartComputationResult = testSmartWithStatefulReader(randomNumber)
+        fun computeAndMeasureTime(computationName: String, computation: (String) -> Long): Pair<Long, Long> {
+            var result: Long
+            val time = measureNanoTime {
+                result = computation(randomNumber)
+            }
+            println(
+                """
+                >>
+                $computationName result: $result
+                $time ns [~${time / 10.0.pow(9)} s]
+                
+            """.trimIndent()
+            )
+
+            return result to time
         }
-        println("Smart result: $smartComputationResult, computed in $smartComputationTime ns")
 
-        var dumbComputationResult: Long
-        val dumbComputationTime = measureNanoTime {
-            dumbComputationResult = testDumbWithStatefulReader(randomNumber)
+        val (smartNoCacheResult, _) = computeAndMeasureTime("Smart + no cache") {
+            testSmartWithStatefulReaderAndDisabledCache(randomNumber)
         }
-        println("Dumb result: $dumbComputationResult, computed in $dumbComputationTime ns")
+        val (smartCacheResult, smartCacheTime) = computeAndMeasureTime("Smart + cache") {
+            testSmartWithStatefulReaderAndEnabledCache(randomNumber)
+        }
+        val (dumbResult, dumbTime) = computeAndMeasureTime("Dumb + no cache") {
+            testDumbWithStatefulReader(randomNumber)
+        }
 
-        assertEquals(
-            dumbComputationResult,
-            smartComputationResult,
-            "Smart and dumb computation results are not equal!"
-        )
+        assertEquals(dumbResult, smartCacheResult)
+        assertEquals(dumbResult, smartNoCacheResult)
 
-        val isSmartFaster = smartComputationTime <= dumbComputationTime
-        val gainInTime =
+        val isSmartFaster = smartCacheTime <= dumbTime
+        val gainInTime: Double =
             if (isSmartFaster)
-                dumbComputationTime / smartComputationTime
+                dumbTime.toDouble() / smartCacheTime.toDouble()
             else
-                smartComputationTime / dumbComputationTime
+                smartCacheTime.toDouble() / dumbTime.toDouble()
 
-        println("${if (isSmartFaster) "Smart" else "Dumb"} computation happened to be $gainInTime times faster")
+        fun Double.format(digits: Int) = "%.${digits}f".format(this)
+
+        println("${if (isSmartFaster) "Smart" else "Dumb"} computation happened to be ${gainInTime.format(1)} times faster")
     }
 }

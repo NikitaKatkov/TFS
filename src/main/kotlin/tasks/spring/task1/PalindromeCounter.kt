@@ -4,7 +4,7 @@ import input.InputDataReader
 import kotlin.math.ceil
 import kotlin.math.pow
 
-class PalindromeCounter(inputReader: InputDataReader, enableValidation: Boolean = false) :
+class PalindromeCounter(inputReader: InputDataReader, enableValidation: Boolean = false, private val shouldUseCache: Boolean = true) :
     PalindromeCounterBase(inputReader, enableValidation) {
 
     override fun computeResult(input: Long): Long {
@@ -62,13 +62,11 @@ class PalindromeCounter(inputReader: InputDataReader, enableValidation: Boolean 
         )
     }
 
-    private fun countAllPossiblePalindromesWithLengthUpTo(upperLengthBound: Int): Long {
-        var palindromesOfShorterLength: Long = 0 //todo sequence + reduce??
-        for (shorterLength in 1 until upperLengthBound) {
-            palindromesOfShorterLength += countPalindromesOfLength(shorterLength)
-        }
-        return palindromesOfShorterLength
-    }
+    private fun countAllPossiblePalindromesWithLengthUpTo(upperLengthBound: Int): Long =
+        generateSequence(1, Int::inc)
+            .take(upperLengthBound - 1)
+            .map(this::countPalindromesOfLength)
+            .sum()
 
     private fun getHalfOfInputIgnoringMiddleDigit(input: Long, groundedHalfLength: Int): Long =
         input / 10.0.pow(input.length() - groundedHalfLength).toLong()
@@ -77,9 +75,21 @@ class PalindromeCounter(inputReader: InputDataReader, enableValidation: Boolean 
 
     private fun Long.length() = this.toString().length
 
-    //todo: cache in a map - will be not so much values in it!
+    companion object {
+        private val cachedLengths = mutableMapOf<Int, Long>()
+
+        private fun getOrCompute(key: Int, enableCache: Boolean, valueEvaluator: () -> Long): Long {
+            if (!enableCache) return valueEvaluator()
+
+            if (cachedLengths[key] == null) {
+                cachedLengths[key] = valueEvaluator()
+            }
+            return cachedLengths[key]!!
+        }
+    }
+
     internal fun countPalindromesOfLength(length: Int): Long =
-        9 * 10.0.pow(ceil(length.toDouble() / 2.0) - 1).toLong()
+        getOrCompute(length, shouldUseCache) { 9 * 10.0.pow(ceil(length.toDouble() / 2.0) - 1).toLong() }
 
     internal fun removeMostSignificantDigit(number: Long): Long? {
         val length = number.length()

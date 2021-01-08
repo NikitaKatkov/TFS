@@ -9,11 +9,15 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 internal class PalindromeCounterTest {
-    private fun testWithStatefulReader(testData: String): Int = PalindromeCounter(TextInputReader(testData)).solve()
+    private fun testSmartWithStatefulReader(testData: String): Int =
+        PalindromeCounter(TextInputReader(testData)).solve()
+
+    private fun testDumbWithStatefulReader(testData: String): Int =
+        BruteForcePalindromeCounter(TextInputReader(testData)).solve()
 
     @Test
     fun `test with provided data`() {
-        assertEquals(17, testWithStatefulReader("88"))
+        assertEquals(17, testSmartWithStatefulReader("88"))
     }
 
     @Test
@@ -26,9 +30,8 @@ internal class PalindromeCounterTest {
 
     @Test
     fun `test remove most significant digit from number`() {
-        assertEquals(2345, PalindromeCounter(TextInputReader("")).removeMostSignificantDigit(12345, 5))
-        assertEquals(12345, PalindromeCounter(TextInputReader("")).removeMostSignificantDigit(912345, 6))
-        assertEquals(912345, PalindromeCounter(TextInputReader("")).removeMostSignificantDigit(912345, 7))
+        assertEquals(2345, PalindromeCounter(TextInputReader("")).removeMostSignificantDigit(12345))
+        assertEquals(12345, PalindromeCounter(TextInputReader("")).removeMostSignificantDigit(912345))
     }
 
     @Test
@@ -41,12 +44,13 @@ internal class PalindromeCounterTest {
 
     @Test
     fun `test count palindromes with fixed length`() {
+        val lowerBound = 10_000_000
+
         val counter = PalindromeCounter(TextInputReader(""))
         // first generate all possible palindromes via brute force
         var bruteCounter = 0
         val bruteForceTiming = measureNanoTime {
-//            for (number in 1..10000) {
-            for (number in 10000000..99999999) {
+            for (number in lowerBound..10 * lowerBound) {
                 if (counter.isPalindrome(number)) {
                     bruteCounter += 1
                 }
@@ -54,7 +58,7 @@ internal class PalindromeCounterTest {
         }
 
         val fastCheckTiming = measureNanoTime {
-            val fastComputationResult = counter.countPalindromesOfLength(8)
+            val fastComputationResult = counter.countPalindromesOfLength(lowerBound.toString().length)
             assertEquals(bruteCounter, fastComputationResult)
         }
 
@@ -75,7 +79,8 @@ internal class PalindromeCounterTest {
 
     @Test
     fun synthetic() {
-        val input = "100000001"
+        val input = "401222"
+//        val input = "100000"
 
         val counter = PalindromeCounter(TextInputReader(input))
         val substitution = counter.findFirstPalindromeLessThan(input.toInt())!!
@@ -97,18 +102,67 @@ internal class PalindromeCounterTest {
 
     @Test
     fun `test count all palindromes`() {
-        assertEquals(1, testWithStatefulReader("1"))
-        assertEquals(5, testWithStatefulReader("5"))
-        assertEquals(9, testWithStatefulReader("9"))
-        assertEquals(10, testWithStatefulReader("19"))
-        assertEquals(17, testWithStatefulReader("88"))
-        assertEquals(19, testWithStatefulReader("102"))
-        assertEquals(20, testWithStatefulReader("111"))
+        assertEquals(1, testSmartWithStatefulReader("1"))
+        assertEquals(5, testSmartWithStatefulReader("5"))
+        assertEquals(9, testSmartWithStatefulReader("9"))
+        assertEquals(10, testSmartWithStatefulReader("19"))
+        assertEquals(17, testSmartWithStatefulReader("88"))
+        assertEquals(19, testSmartWithStatefulReader("102"))
+        assertEquals(20, testSmartWithStatefulReader("111"))
+        assertEquals(109, testSmartWithStatefulReader("1001"))
+        assertEquals(1400, testSmartWithStatefulReader("401222"))
+        assertEquals(1098, testSmartWithStatefulReader("100000"))
+        assertEquals(1099, testSmartWithStatefulReader("100001"))
+        assertEquals(1999, testSmartWithStatefulReader("1000001"))
+    }
 
+    @Test
+    fun `test dumb brute force counter`() {
+        assertEquals(1, testDumbWithStatefulReader("1"))
+        assertEquals(5, testDumbWithStatefulReader("5"))
+        assertEquals(9, testDumbWithStatefulReader("9"))
+        assertEquals(10, testDumbWithStatefulReader("19"))
+        assertEquals(17, testDumbWithStatefulReader("88"))
+        assertEquals(19, testDumbWithStatefulReader("102"))
+        assertEquals(20, testDumbWithStatefulReader("111"))
+        assertEquals(109, testDumbWithStatefulReader("1001"))
+        assertEquals(1400, testDumbWithStatefulReader("401222"))
+        assertEquals(1098, testDumbWithStatefulReader("100000"))
+        assertEquals(1099, testDumbWithStatefulReader("100001"))
+        assertEquals(1999, testDumbWithStatefulReader("1000001"))
+    }
+
+    @Test
+    fun `test dumb and smart counters equivalent results`() {
         val random = Random(System.currentTimeMillis())
-        for (index in 1..10) {
-            val randomNumber = random.nextInt()
+        val randomNumber = "${random.nextInt(1, 1_000_000)}"
+        println("Input number: $randomNumber")
 
+        var smartComputationResult: Int
+        val smartComputationTime = measureNanoTime {
+            smartComputationResult = testSmartWithStatefulReader(randomNumber)
         }
+        println("Smart result: $smartComputationResult computed in $smartComputationTime ns")
+
+        var dumbComputationResult: Int
+        val dumbComputationTime = measureNanoTime {
+            dumbComputationResult = testDumbWithStatefulReader(randomNumber)
+        }
+        println("Dumb result: $dumbComputationResult computed in $dumbComputationTime ns")
+
+        assertEquals(
+            dumbComputationResult,
+            smartComputationResult,
+            "Smart and dumb computation results are not equal!"
+        )
+
+        val isSmartFaster = smartComputationTime <= dumbComputationTime
+        val gainInTime =
+            if (isSmartFaster)
+                dumbComputationTime / smartComputationTime
+            else
+                smartComputationTime / dumbComputationTime
+
+        println("${if (isSmartFaster) "Smart" else "Dumb"} computation happened to be $gainInTime times faster")
     }
 }

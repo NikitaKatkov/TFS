@@ -11,13 +11,13 @@ import kotlin.test.assertTrue
 
 internal class PalindromeCounterTest {
     private fun testSmartWithStatefulReaderAndEnabledCache(testData: String): Long =
-        PalindromeCounter(TextInputReader(testData)).solve()
+        PalindromeCounter(TextInputReader(testData), enableValidation = false, enableCache = true).solve()
 
     private fun testSmartWithStatefulReaderAndDisabledCache(testData: String): Long =
-        PalindromeCounter(inputReader = TextInputReader(testData), shouldUseCache = false).solve()
+        PalindromeCounter(TextInputReader(testData), enableValidation = false, enableCache = false).solve()
 
     private fun testDumbWithStatefulReader(testData: String): Long =
-        BruteForcePalindromeCounter(TextInputReader(testData)).solve()
+        BruteForcePalindromeCounter(TextInputReader(testData), enableValidation = false).solve()
 
     @Test
     fun `test with provided data`() {
@@ -161,8 +161,11 @@ internal class PalindromeCounterTest {
             else
                 smartCacheTime.toDouble() / dumbTime.toDouble()
 
-        fun Double.format(digits: Int) = "%.${digits}f".format(this)
+        fun Double.withLimitedFraction(): String {
+            val fraction = if (this > 1.0) 0 else 1
+            return "%.${fraction}f".format(this)
+        }
 
-        println("${if (isSmartFaster) "Smart" else "Dumb"} computation happened to be ${gainInTime.format(1)} times faster")
+        println("${if (isSmartFaster) "Smart" else "Dumb"} computation happened to be ${gainInTime.withLimitedFraction()} times faster")
     }
 }

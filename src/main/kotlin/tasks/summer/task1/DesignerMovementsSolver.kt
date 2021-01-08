@@ -3,11 +3,12 @@ package tasks.summer.task1
 import input.InputDataReader
 import input.InputParser
 import input.InputValidator
+import tasks.TaskBase
 import kotlin.math.min
 
-internal class DesignerMovementsSolver(private val inputReader: InputDataReader) {
+internal class DesignerMovementsSolver(inputReader: InputDataReader) : TaskBase<Sequence<Int>, Int>(inputReader, true) {
     // Easy to modify code so that it would work with unlimited sequence of designer movements
-    private fun prepareInputData(): Sequence<Int> {
+    override fun prepareInput(): Sequence<Int> {
         val movementsCount = inputReader.readOneLine()
             .let { InputParser.parseInteger(it) }
             .also { InputValidator.validateLimits(it, 1, 100) }
@@ -23,10 +24,11 @@ internal class DesignerMovementsSolver(private val inputReader: InputDataReader)
         }
     }
 
-    fun solve(): Int {
+    override fun computeResult(input: Sequence<Int>): Int {
         var currentDistance = DEFAULT_DISTANCE
         var minimumDistance = currentDistance
-        prepareInputData().forEach { currentMoveLength ->
+
+        input.forEach { currentMoveLength ->
             currentDistance += currentMoveLength
             if (currentDistance < 0) {
                 // if designers walked past each other, the distance between them still needs to be positive :)

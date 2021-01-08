@@ -4,7 +4,7 @@ import input.InputDataReader
 import kotlin.math.ceil
 import kotlin.math.pow
 
-class PalindromeCounter(inputReader: InputDataReader, enableValidation: Boolean = false, private val shouldUseCache: Boolean = true) :
+class PalindromeCounter(inputReader: InputDataReader, enableValidation: Boolean = true, private val enableCache: Boolean = true) :
     PalindromeCounterBase(inputReader, enableValidation) {
 
     override fun computeResult(input: Long): Long {
@@ -89,7 +89,7 @@ class PalindromeCounter(inputReader: InputDataReader, enableValidation: Boolean 
     }
 
     internal fun countPalindromesOfLength(length: Int): Long =
-        getOrCompute(length, shouldUseCache) { 9 * 10.0.pow(ceil(length.toDouble() / 2.0) - 1).toLong() }
+        getOrCompute(length, enableCache) { 9 * 10.0.pow(ceil(length.toDouble() / 2.0) - 1).toLong() }
 
     internal fun removeMostSignificantDigit(number: Long): Long? {
         val length = number.length()

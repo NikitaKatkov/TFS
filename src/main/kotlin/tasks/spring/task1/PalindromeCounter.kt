@@ -36,8 +36,13 @@ class PalindromeCounter(private val inputReader: InputDataReader) {
             if (inputHalfWithoutMiddleDigit == null)
                 return if (hasMiddleDigit)
                     substitutedMiddleDigit + 1//fixme? merge with third condition?
+                else if (previousHdr != null)
+                    if (indexFromLeft - 1 > 1) // if previous index does not point to the first digit, it is possible to use zero as well in current position, so we add one extra variant
+                        previousHdr + 1
+                    else
+                        previousHdr//fixme NOWWNOWNONWO!!!! mb previous hrd and not 1??)
                 else
-                    1 ?: throw ComputationException("number has no middle digit and no prev hrd value is passed - should not reach this code")
+                    throw ComputationException("number has no middle digit and no prev hrd value is passed - should not reach this code")
 
             // separate case when a single digit is passed: it is treated like a middle digit, but to skip '0' palindrome we do not add 1 here
             if (groundedHalfLength == 0 && indexFromLeft == 1 && hasMiddleDigit)
@@ -50,12 +55,14 @@ class PalindromeCounter(private val inputReader: InputDataReader) {
 
             val highestRankDigit =
                 getHighestRankDigit(inputHalfWithoutMiddleDigit)//todo: what if HRD == 0?? consider shifting right index from left))
-            val middleDigitMultiplier =
+            val middleDigitMultiplier =//todo extract to outer fun
                 if (hasMiddleDigit) 10 else 1
 
             val howMuchWithLesserHighestRankDigit =
-                (highestRankDigit - 1) * 10.0.pow(groundedHalfLength - indexFromLeft) * middleDigitMultiplier
-
+                if (highestRankDigit > 0)
+                    (highestRankDigit - 1) * 10.0.pow(groundedHalfLength - indexFromLeft) * middleDigitMultiplier
+                else
+                    0
 
             val trimmedHdr = removeMostSignificantDigit(inputHalfWithoutMiddleDigit, inputHalfWithoutMiddleDigit.length())
             val currentHrd = getHighestRankDigit(inputHalfWithoutMiddleDigit)

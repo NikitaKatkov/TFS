@@ -37,11 +37,12 @@ class PalindromeCounter(private val inputReader: InputDataReader) {
                 return if (hasMiddleDigit)
                     substitutedMiddleDigit + 1//fixme? merge with third condition?
                 else if (previousHdr != null)
-                    if (indexFromLeft - 1 > 1) // if previous index does not point to the first digit, it is possible to use zero as well in current position, so we add one extra variant
-//                        previousHdr + 1
-                        1 + 1
-                    else
-                        1//fixme NOWWNOWNONWO!!!! mb previous hrd and not 1??)
+                    1
+//                    if (indexFromLeft - 1 > 1) // if previous index does not point to the first digit, it is possible to use zero as well in current position, so we add one extra variant
+////                        previousHdr + 1
+//                        1 + 1
+//                    else
+//                        1//fixme NOWWNOWNONWO!!!! mb previous hrd and not 1??)
                 else
                     throw ComputationException("number has no middle digit and no prev hrd value is passed - should not reach this code")
 

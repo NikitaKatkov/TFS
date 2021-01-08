@@ -2,6 +2,7 @@ package tasks.spring.task1
 
 import input.TextInputReader
 import org.junit.jupiter.api.Test
+import kotlin.random.Random
 import kotlin.system.measureNanoTime
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -75,7 +76,7 @@ internal class PalindromeCounterTest {
     @Test
     fun synthetic() {
 //        val input = "10000"
-        val input = "10000001"
+        val input = "100000001"
 
         val counter = PalindromeCounter(TextInputReader(input))
         val substitution = counter.findFirstPalindromeLessThan(input.toInt())!!
@@ -105,5 +106,11 @@ internal class PalindromeCounterTest {
         assertEquals(17, testWithStatefulReader("88"))
         assertEquals(19, testWithStatefulReader("102"))
         assertEquals(20, testWithStatefulReader("111"))
+
+        val random = Random(System.currentTimeMillis())
+        for (index in 1..10) {
+            val randomNumber = random.nextInt()
+
+        }
     }
 }

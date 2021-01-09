@@ -1,5 +1,9 @@
 package exceptions
 
-import java.lang.IllegalArgumentException
+import java.lang.Exception
 
-class ComputationException(cause: String): IllegalArgumentException(cause)
+class ComputationException: RuntimeException {
+    constructor(cause: Exception) : super(cause)
+    constructor(description: String) : super(description)
+    constructor(description: String, cause: Exception) : super(description, cause)
+}

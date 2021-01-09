@@ -26,13 +26,4 @@ class LetterCollector(inputDataReader: InputDataReader) : TaskBase<String, Strin
             repeatedCharSet.forEach(this::append)
         }
     }
-
-    private fun MutableMap<Char, Int>.append(key: Char) {
-        var existingValue: Int? = this[key]
-        if (existingValue == null) {
-            this[key] = 0
-            existingValue = 0
-        }
-        this[key] = existingValue + 1
-    }
 }

@@ -3,6 +3,10 @@ package input
 import exceptions.ValidationException
 
 object InputValidator {
+    fun validateLength(value: String, minLength: Int?, maxLength: Int?) {
+        validateLimits(value.length, minLength, maxLength)
+    }
+
     fun validateLimits(value: Int, minValue: Int?, maxValue: Int?) {
         validateLimits(value.toLong(), minValue?.toLong(), maxValue?.toLong())
     }

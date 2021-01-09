@@ -60,6 +60,7 @@ class Polynomial {
 
         private val knownArithmeticOperations = setOf("+", "-")
 
+        private val whitespaceRegex = "\\s".toRegex()
         private val monomialRegex: Regex
 
         init {
@@ -68,11 +69,13 @@ class Polynomial {
         }
 
         fun fromString(rawInput: String): Polynomial {
+            val inputWithoutWhitespaces = rawInput.replace(whitespaceRegex, "")
+
             val polynomial = Polynomial()
             var currentIndex = 0
-            while (currentIndex < rawInput.length) {
-                val foundIndex = rawInput.findNextArithmeticSignIndex(currentIndex + 1) ?: rawInput.length
-                val monomialSubstring = rawInput.substring(currentIndex, foundIndex)
+            while (currentIndex < inputWithoutWhitespaces.length) {
+                val foundIndex = inputWithoutWhitespaces.findNextArithmeticSignIndex(currentIndex + 1) ?: inputWithoutWhitespaces.length
+                val monomialSubstring = inputWithoutWhitespaces.substring(currentIndex, foundIndex)
                 polynomial.addMonomialFromString(monomialSubstring)
 
                 currentIndex = foundIndex

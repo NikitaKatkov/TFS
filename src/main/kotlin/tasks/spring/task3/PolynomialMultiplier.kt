@@ -5,7 +5,7 @@ import input.InputDataReader
 import tasks.TaskBase
 import tasks.spring.task3.validation.PolynomialValidator
 
-class PolynomialMultiplier(inputDataReader: InputDataReader) : TaskBase<List<Polynomial>, Polynomial>(inputDataReader) {
+class PolynomialMultiplier(inputDataReader: InputDataReader) : TaskBase<List<Polynomial>, String>(inputDataReader) {
     override fun prepareInput(): List<Polynomial> {
         // consider reading an arbitrary number of polynomials to multiply in case there are mre than two of them
         val givenPolynomialsCount = 2
@@ -19,13 +19,28 @@ class PolynomialMultiplier(inputDataReader: InputDataReader) : TaskBase<List<Pol
         return parsedPolynomials
     }
 
-    override fun computeResult(input: List<Polynomial>): Polynomial =
-        input.reduce { accumulator, newPolynomial ->
-            multiply(accumulator, newPolynomial)
+    override fun computeResult(input: List<Polynomial>): String = productOf(input).toString()
+
+    private fun productOf(polynomials: List<Polynomial>): Polynomial =
+        polynomials.reduce { accumulator, newPolynomial ->
+            productOfTwo(accumulator, newPolynomial)
         }
 
-    private fun multiply(first: Polynomial, second: Polynomial): Polynomial {
-        TODO()
+    private fun productOfTwo(first: Polynomial, second: Polynomial): Polynomial {
+        val result = Polynomial()
+
+        for (firstDegree in 0..first.maximumDegree()) {
+            val firstFactor = first.factorByDegree(firstDegree)
+
+            for (secondDegree in 0..second.maximumDegree()) {
+                val secondFactor = second.factorByDegree(secondDegree)
+
+                val factorProduct = firstFactor * secondFactor
+                val degreeSum = firstDegree + secondDegree
+                result.addMonomial(factorProduct, degreeSum)
+            }
+        }
+        return result
     }
 }
 
@@ -34,23 +49,43 @@ class PolynomialMultiplier(inputDataReader: InputDataReader) : TaskBase<List<Pol
  * Simpler explanation: collection is made of numerical factors for corresponding variable degrees in the original polynomial.
  */
 class Polynomial {
-    constructor(map: MutableMap<Int, Int>) {
-        factorsByDegrees = map
-    }
 
-    constructor() {
-        factorsByDegrees = mutableMapOf()
-    }
-
-    private val factorsByDegrees: MutableMap<Int, Int>
+    private val factorsByDegrees: MutableMap<Int, Int> = mutableMapOf()
 
     fun factorByDegree(degree: Int): Int = factorsByDegrees[degree] ?: 0
-    fun maximumDegree(): Int = factorsByDegrees.keys.maxOrNull() ?: 0
+    fun maximumDegree(): Int = factorsByDegrees.filter { it.value != 0 }.keys.maxOrNull() ?: 0
 
     fun addMonomialFromString(monomial: String) {
         val (degree, factor) = parseMonomialDegreeToFactor(monomial)
         factorsByDegrees.append(degree, factor)
     }
+
+    fun addMonomial(factor: Int, degree: Int) {
+        factorsByDegrees.append(degree, factor)
+    }
+
+    override fun toString(): String = buildString {
+        val sortedDegrees = factorsByDegrees.toSortedMap()
+        for (entry in sortedDegrees.entries.reversed()) {
+            val rawFactor = entry.value
+            val rawDegree = entry.key
+
+            val plusOrEmpty = if (rawFactor >= 0) "+" else ""
+
+            val factorOrSign = when (rawFactor) {
+                0 -> if (rawDegree == 0 && maximumDegree() == 0) "0" else continue
+                1 -> "+"
+                -1 -> "-"
+                else -> "$plusOrEmpty$rawFactor"
+            }
+
+            when (rawDegree) {
+                0 -> append("$plusOrEmpty$rawFactor")
+                1 -> append("${factorOrSign}$VARIABLE_SYMBOL")
+                else -> append("${factorOrSign}$VARIABLE_SYMBOL^${rawDegree}")
+            }
+        }
+    }.removePrefix("+")
 
     companion object {
         private const val VARIABLE_SYMBOL = "x"
@@ -74,7 +109,8 @@ class Polynomial {
             val polynomial = Polynomial()
             var currentIndex = 0
             while (currentIndex < inputWithoutWhitespaces.length) {
-                val foundIndex = inputWithoutWhitespaces.findNextArithmeticSignIndex(currentIndex + 1) ?: inputWithoutWhitespaces.length
+                val foundIndex = inputWithoutWhitespaces.findNextArithmeticSignIndex(currentIndex + 1)
+                    ?: inputWithoutWhitespaces.length
                 val monomialSubstring = inputWithoutWhitespaces.substring(currentIndex, foundIndex)
                 polynomial.addMonomialFromString(monomialSubstring)
 
@@ -118,8 +154,8 @@ class Polynomial {
             return degree to factor
         }
     }
-}
 
+}
 
 fun MutableMap<Int, Int>.append(key: Int, value: Int) {
     var existingValue: Int? = this[key]

@@ -6,7 +6,8 @@ import input.InputValidator
 import tasks.TaskBase
 import kotlin.properties.Delegates
 
-abstract class UnmodifiedMessagesCounterBase(inputDataReader: InputDataReader) : TaskBase<MessagesQueue, Long>(inputDataReader) {
+abstract class UnmodifiedMessagesCounterBase(inputDataReader: InputDataReader) :
+    TaskBase<MessagesQueue, Long>(inputDataReader) {
     companion object {
         private const val TAPE_LENGTH_LOWER_BOUND = 1L
         private const val TAPE_LENGTH_UPPER_BOUND = 1_000_000_000L
@@ -55,17 +56,11 @@ data class MessageData(
     val endIndex: Long,
     val originalOrder: Long
 ) {
-    fun intersectsWith(other: MessageData): Boolean {
-        // Start index inside other range
-        if (beginIndex == other.beginIndex || beginIndex == other.endIndex || (beginIndex > other.beginIndex && beginIndex < other.endIndex))
-            return true
-
-        // End index inside other range
-        if (endIndex == other.beginIndex || endIndex == other.endIndex || (endIndex > other.beginIndex && endIndex < other.endIndex)) {
-            return beginIndex < other.endIndex
+    // Easier to look whether ranges definitely do not intersect each other and return reversed answer :)
+    fun intersectsWith(other: MessageData): Boolean =
+        when {
+            endIndex < other.beginIndex -> false
+            beginIndex > other.endIndex -> false
+            else -> true
         }
-
-        // Other range is inside this one
-        return other.beginIndex > beginIndex && other.endIndex < endIndex
-    }
 }

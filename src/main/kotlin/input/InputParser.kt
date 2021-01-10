@@ -20,7 +20,7 @@ object InputParser {
             try {
                 line.trim().toLong()
             } catch (exception: NumberFormatException) {
-                throw ParsingException("Unable to parse integer from given string: $line", exception)
+                throw ParsingException("Unable to parse long from given string: $line", exception)
             }
         setter(parsedValue)
         return parsedValue

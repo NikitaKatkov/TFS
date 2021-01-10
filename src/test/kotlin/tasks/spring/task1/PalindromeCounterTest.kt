@@ -118,7 +118,7 @@ internal class PalindromeCounterTest {
 
     @Test
     fun `test dumb and smart counters equivalent results`() {
-        val lowerNumberBound = 100_000_000L
+        val lowerNumberBound = 10_000_000L
 
         val random = Random(System.currentTimeMillis())
         val randomNumber = "${random.nextLong(lowerNumberBound, 2 * lowerNumberBound)}"

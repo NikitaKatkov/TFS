@@ -2,6 +2,7 @@ package input
 
 import exceptions.ParsingException
 import logging.Logger
+import kotlin.reflect.KMutableProperty0
 
 object InputParser {
     fun parseInteger(line: String, setter: (Int) -> Unit = {}): Int {
@@ -15,14 +16,14 @@ object InputParser {
         return parsedValue
     }
 
-    fun parseLong(line: String, setter: (Long) -> Unit = {}): Long {
+    fun parseLong(line: String, setter: KMutableProperty0<Long>? = null): Long {
         val parsedValue =
             try {
                 line.trim().toLong()
             } catch (exception: NumberFormatException) {
                 throw ParsingException("Unable to parse long from given string: $line", exception)
             }
-        setter(parsedValue)
+        setter?.set(parsedValue)
         return parsedValue
     }
 

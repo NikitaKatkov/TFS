@@ -64,3 +64,10 @@ data class MessageData(
             else -> true
         }
 }
+
+fun getLatestMessage(first: MessageData, second: MessageData): MessageData {
+    return if (first.originalOrder >= second.originalOrder)
+        first
+    else
+        second
+}

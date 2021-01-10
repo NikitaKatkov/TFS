@@ -6,7 +6,7 @@ import input.InputValidator
 import tasks.TaskBase
 import kotlin.properties.Delegates
 
-class UnmodifiedMessagesCounter(inputDataReader: InputDataReader) : TaskBase<MessagesQueue, Long>(inputDataReader) {
+abstract class UnmodifiedMessagesCounterBase(inputDataReader: InputDataReader) : TaskBase<MessagesQueue, Long>(inputDataReader) {
     companion object {
         private const val TAPE_LENGTH_LOWER_BOUND = 1L
         private const val TAPE_LENGTH_UPPER_BOUND = 1_000_000_000L
@@ -36,25 +36,36 @@ class UnmodifiedMessagesCounter(inputDataReader: InputDataReader) : TaskBase<Mes
                             MessageData(begin, end, originalIndex)
                         }
                 }.toList()
-                .let { input.messagesCoordinates = it }
+                .let { input.messagesRanges = it }
         }
 
         return input
     }
-
-    override fun computeResult(input: MessagesQueue): Long {
-        TODO("Not yet implemented")
-    }
 }
 
 class MessagesQueue {
+    // Keeping those 2 variables is not necessary
     var paperTapeLength by Delegates.notNull<Long>()
     var messagesCount by Delegates.notNull<Long>()
-    lateinit var messagesCoordinates: List<MessageData>
+    lateinit var messagesRanges: List<MessageData>
 }
 
 data class MessageData(
     val beginIndex: Long,
     val endIndex: Long,
     val originalOrder: Long
-)
+) {
+    fun intersectsWith(other: MessageData): Boolean {
+        // Start index inside other range
+        if (beginIndex == other.beginIndex || beginIndex == other.endIndex || (beginIndex > other.beginIndex && beginIndex < other.endIndex))
+            return true
+
+        // End index inside other range
+        if (endIndex == other.beginIndex || endIndex == other.endIndex || (endIndex > other.beginIndex && endIndex < other.endIndex)) {
+            return beginIndex < other.endIndex
+        }
+
+        // Other range is inside this one
+        return other.beginIndex > beginIndex && other.endIndex < endIndex
+    }
+}

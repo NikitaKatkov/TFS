@@ -117,6 +117,61 @@ internal class UnmodifiedMessagesCounterTest {
                 1 3
             """.trimIndent())
         )
+
+        assertEquals(
+            3,
+            testDumbWithStatefulReader("""
+                100
+                7
+                1 3
+                5 8
+                10 13
+                15 18
+                2 6
+                7 11
+                12 16
+            """.trimIndent())
+        )
+
+        assertEquals(
+            1,
+            testDumbWithStatefulReader("""
+                100
+                5
+                5 7
+                4 6
+                3 5
+                2 4
+                1 3
+                1 100
+            """.trimIndent())
+        )
+
+        assertEquals(
+            2,
+            testDumbWithStatefulReader("""
+                100
+                5
+                9 16
+                4 11
+                14 21
+                1 6
+                19 25
+            """.trimIndent())
+        )
+
+        assertEquals(
+            1,
+            testDumbWithStatefulReader("""
+                100
+                5
+                1 6
+                19 25
+                4 11
+                14 21
+                9 16
+            """.trimIndent())
+        )
     }
 
     @Test

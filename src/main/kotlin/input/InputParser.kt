@@ -5,14 +5,14 @@ import logging.Logger
 import kotlin.reflect.KMutableProperty0
 
 object InputParser {
-    fun parseInteger(line: String, setter: (Int) -> Unit = {}): Int {
+    fun parseInteger(line: String, setter: KMutableProperty0<Int>? = null): Int {
         val parsedValue =
             try {
                 line.trim().toInt()
             } catch (exception: NumberFormatException) {
                 throw ParsingException("Unable to parse integer from given string: $line", exception)
             }
-        setter(parsedValue)
+        setter?.set(parsedValue)
         return parsedValue
     }
 
@@ -27,14 +27,14 @@ object InputParser {
         return parsedValue
     }
 
-    fun parseDouble(line: String, setter: (Double) -> Unit = {}): Double {
+    fun parseDouble(line: String, setter: KMutableProperty0<Double>? = null): Double {
         val parsedValue =
             try {
                 line.trim().toDouble()
             } catch (exception: NumberFormatException) {
                 throw ParsingException("Unable to parse double from given string: $line", exception)
             }
-        setter(parsedValue)
+        setter?.set(parsedValue)
         return parsedValue
     }
 
@@ -42,7 +42,7 @@ object InputParser {
         line: String,
         typeParser: (String) -> Type,
         delimiter: String = " ",
-        setter: (Pair<Type, Type>) -> Unit = {}
+        setter: KMutableProperty0<Pair<Type, Type>>? = null
     ): Pair<Type, Type> {
         val parsedValue =
             try {
@@ -57,7 +57,7 @@ object InputParser {
             } catch (exception: ParsingException) {
                 throw ParsingException("Unable to parse pair of values from given string: $line", exception)
             }
-        setter(parsedValue)
+        setter?.set(parsedValue)
         return parsedValue
     }
 }

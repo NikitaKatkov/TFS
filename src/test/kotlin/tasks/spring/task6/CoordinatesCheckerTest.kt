@@ -77,4 +77,35 @@ internal class CoordinatesCheckerTest {
             )
         )
     }
+
+    @Test
+    fun `test check coordinates`() {
+        var testData = """
+            3
+            0 0
+            1 0
+            0 1
+            0.5 0.3
+        """.trimIndent()
+        assertEquals("YES", testWithStatefulReader(testData))
+
+        testData = """
+                    8
+                    1 1
+                    1 3
+                    2 3
+                    2 2
+                    3 2
+                    3 3
+                    4 3
+                    4 1
+                    
+                """.trimIndent()
+        assertEquals("NO", testWithStatefulReader(testData + "0.5 0.3"))
+        assertEquals("YES", testWithStatefulReader(testData + "1.5 2.5"))
+        assertEquals("YES", testWithStatefulReader(testData + "1 3"))
+        assertEquals("NO", testWithStatefulReader(testData + "1 3.00001"))
+        assertEquals("YES", testWithStatefulReader(testData + "1 2"))
+        assertEquals("NO", testWithStatefulReader(testData + "2.5 2.5"))
+    }
 }

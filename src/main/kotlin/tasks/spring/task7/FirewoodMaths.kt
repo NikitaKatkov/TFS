@@ -15,13 +15,14 @@ class FirewoodMaths(inputDataReader: InputDataReader) : TaskBase<Pair<Int, Int>,
             }
 
     override fun computeResult(input: Pair<Int, Int>): Int {
-        val minimalDepths = mutableSetOf<Int>()
+        var minimalDepth = -1
 
         fun tryAllOperations(expectedResult: Int, depth: Int = 0) {
             when {
+                minimalDepth != -1 && depth >= minimalDepth -> return
                 expectedResult < input.first -> return
                 expectedResult == input.first -> {
-                    minimalDepths.add(depth)
+                    minimalDepth = depth
                     return
                 }
             }
@@ -37,7 +38,7 @@ class FirewoodMaths(inputDataReader: InputDataReader) : TaskBase<Pair<Int, Int>,
         }
 
         tryAllOperations(input.second)
-        return minimalDepths.minOrNull() ?: -1
+        return minimalDepth
     }
 }
 

@@ -17,12 +17,12 @@ class FirewoodMaths(inputDataReader: InputDataReader) : TaskBase<Pair<Int, Int>,
     override fun computeResult(input: Pair<Int, Int>): Int {
         val minimalDepths = mutableSetOf<Int>()
 
-        fun tryAllOperations(expectedResult: Int, depth: Int = 0): Int {
+        fun tryAllOperations(expectedResult: Int, depth: Int = 0) {
             when {
-                expectedResult < input.first -> return -1
+                expectedResult < input.first -> return
                 expectedResult == input.first -> {
                     minimalDepths.add(depth)
-                    return -1
+                    return
                 }
             }
 
@@ -32,11 +32,8 @@ class FirewoodMaths(inputDataReader: InputDataReader) : TaskBase<Pair<Int, Int>,
                 val processedInput = operation.reverseOperation(expectedResult)
                 assert(processedInput != expectedResult) { "Value $expectedResult was not changed after applying reversed operation of $operation" }
 
-                if (processedInput == -1) continue
-
                 tryAllOperations(processedInput, depth + 1)
             }
-            return -1
         }
 
         tryAllOperations(input.second)
